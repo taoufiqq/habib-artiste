@@ -184,6 +184,42 @@ export default function LandingPage() {
       }
     });
   }, [currentSlide]);
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMenuOpen]);
+  useEffect(() => {
+    // Add custom keyframe animation
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes pulse-ring {
+        0% {
+          transform: scale(0.33);
+        }
+        80%, 100% {
+          opacity: 0;
+        }
+      }
+      @keyframes pulse-dot {
+        0% {
+          transform: scale(0.8);
+        }
+        50% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(0.8);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   const nextSlide = () => {
     setCurrentSlide((prevSlide) => (prevSlide + 1) % videoSlides.length);
@@ -205,7 +241,118 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black">
-      <header className="px-4 lg:px-6 h-14 flex items-center justify-between fixed top-0 left-0 right-0 bg-white z-50 border-b border-gray-200">
+      <header className="px-4 lg:px-6 h-16 flex items-center justify-between fixed top-0 left-0 right-0 bg-white z-50 border-b border-gray-200">
+        <Link className="flex items-center justify-center group" href="#">
+          <Image
+            src="/img/logo.png"
+            alt="Habib Events"
+            width={40}
+            height={40}
+            className="rounded-full transition-transform duration-300 group-hover:scale-110"
+          />
+          <span className="ml-2 text-lg font-bold text-[#6B0F1A] transition-all duration-300 group-hover:ml-3 group-hover:text-xl">
+            Habib Artiste
+          </span>
+        </Link>
+        <div className="hidden lg:flex items-center space-x-4">
+          <nav className="flex items-center space-x-6">
+            {["À propos", "Services", "Portfolio", "Contact"].map((item) => (
+              <Link
+                key={item}
+                className="text-sm font-medium hover:text-[#6B0F1A] py-2 px-3 transition-colors duration-200 hover:bg-gray-100 rounded-md"
+                href={`#${item.toLowerCase().replace(" ", "-")}`}
+              >
+                {item}
+              </Link>
+            ))}
+          </nav>
+          <Link
+            href="#contact"
+            className="relative bg-red-600 text-white py-2 px-4 rounded-md flex items-center space-x-2 hover:bg-red-700 transition-colors duration-200 shadow-lg"
+          >
+            <span className="animate-[pulse-dot_1.25s_cubic-bezier(0.455,0.03,0.515,0.955)_infinite] absolute w-full h-full rounded-md bg-red-600 opacity-75"></span>
+            <span className="animate-[pulse-ring_1.25s_cubic-bezier(0.24,0,0.38,1)_infinite] absolute w-full h-full rounded-md bg-red-600 opacity-75"></span>
+            <Phone className="h-4 w-4 z-10" />
+            <span className="z-10">Appelez-nous</span>
+          </Link>
+        </div>
+        <button
+          className="lg:hidden z-50 transition-transform duration-300 hover:scale-110"
+          onClick={toggleMenu}
+          aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+        >
+          {isMenuOpen ? (
+            <X className="h-6 w-6 text-[#6B0F1A]" />
+          ) : (
+            <Menu className="h-6 w-6 text-[#6B0F1A]" />
+          )}
+        </button>
+        <div
+          className={`
+          fixed inset-0 bg-white z-40 lg:hidden
+          flex flex-col items-center justify-start pt-20
+          transition-all duration-300 ease-in-out
+          ${
+            isMenuOpen
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 translate-x-full"
+          }
+        `}
+        >
+          <div className="flex items-center justify-center mb-8">
+            <Image
+              src="/img/logo.png"
+              alt="Habib Events"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            <span className="ml-3 text-2xl font-bold text-[#6B0F1A]">
+              Habib Artiste
+            </span>
+          </div>
+          <nav className="flex flex-col items-center space-y-4 mb-8">
+            {["À propos", "Services", "Portfolio", "Contact"].map(
+              (item, index) => (
+                <Link
+                  key={item}
+                  className={`
+                text-lg font-medium hover:text-[#6B0F1A] py-3 px-4
+                transition-all duration-300 ease-in-out
+                opacity-0 translate-y-4
+                ${isMenuOpen ? "opacity-100 translate-y-0" : ""}
+                hover:bg-gray-100 rounded-md w-64 text-center
+              `}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                  href={`#${item.toLowerCase().replace(" ", "-")}`}
+                  onClick={closeMenu}
+                >
+                  {item}
+                </Link>
+              )
+            )}
+          </nav>
+          <Link
+            href="#contact"
+            className="relative bg-red-600 text-white py-3 px-6 rounded-md flex items-center space-x-2 hover:bg-red-700 transition-colors duration-200 shadow-lg"
+            onClick={closeMenu}
+          >
+            <span className="animate-[pulse-dot_1.25s_cubic-bezier(0.455,0.03,0.515,0.955)_infinite] absolute w-full h-full rounded-md bg-red-600 opacity-75"></span>
+            <span className="animate-[pulse-ring_1.25s_cubic-bezier(0.24,0,0.38,1)_infinite] absolute w-full h-full rounded-md bg-red-600 opacity-75"></span>
+            <Phone className="h-5 w-5 z-10" />
+            <span className="z-10">Appelez-nous</span>
+          </Link>
+        </div>
+        {isMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={closeMenu}
+            aria-hidden="true"
+          />
+        )}
+      </header>
+
+      {/* <header className="px-4 lg:px-6 h-14 flex items-center justify-between fixed top-0 left-0 right-0 bg-white z-50 border-b border-gray-200">
         <Link className="flex items-center justify-center" href="#">
           <Image
             src="/img/logo.png"
@@ -259,13 +406,7 @@ export default function LandingPage() {
           >
             Portfolio
           </Link>
-          {/* <Link
-            className="text-lg lg:text-sm font-medium hover:text-[#6B0F1A] py-3"
-            href="#packs"
-            onClick={closeMenu}
-          >
-            Forfaits
-          </Link> */}
+      
           <Link
             className="text-lg lg:text-sm font-medium hover:text-[#6B0F1A] py-3"
             href="#contact"
@@ -274,9 +415,9 @@ export default function LandingPage() {
             Contact
           </Link>
         </nav>
-      </header>
+      </header> */}
       <main className="flex-1 pt-14">
-        <section className="relative w-full h-screen">
+        <section className="relative w-full h-[40vh] lg:h-[80vh]">
           {videoSlides.map((slide, index) => (
             <div
               key={slide.src}
@@ -296,10 +437,10 @@ export default function LandingPage() {
           ))}
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="text-center text-white px-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
                 {videoSlides[currentSlide].title}
               </h1>
-              <p className="text-xl md:text-2xl mb-8">
+              <p className="text-lg md:text-xl mb-8">
                 Votre partenaire de confiance pour planifier des mariages et des
                 événements qui laissent une impression durable.
               </p>
